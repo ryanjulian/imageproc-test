@@ -5,7 +5,7 @@ This is the board support integration branch for ImageProc 2.5 unit tests.
 Please send pull requests with unit tests here.
 
 Use the following commands to setup the integration branch in your local git 
-repository. These commands assume you have forked octoroach from 
+repository. These commands assume you have forked imageproc-test from 
 biomimetics into your Github account, and then cloned your Github fork into
 your local repository.
 
