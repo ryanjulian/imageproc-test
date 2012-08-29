@@ -38,7 +38,7 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>dsPIC33FJ128MC706A</targetDevice>
         <targetHeader></targetHeader>
-        <platformTool>ICD3PlatformTool</platformTool>
+        <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.00</languageToolchainVersion>
         <platform>4</platform>

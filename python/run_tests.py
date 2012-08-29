@@ -54,11 +54,11 @@ def main():
     print('\nI: Testing radio communication:')
     ts.test_radio()
 
-    print('\nI: Testing gyroscopes:\n')
-    ts.test_gyro(5)
+    #print('\nI: Testing gyroscopes:\n')
+    #ts.test_gyro(5)
 
-    print('\nI: Testing accelerometers:\n')
-    ts.test_accel(5)
+    #print('\nI: Testing accelerometers:\n')
+    #ts.test_accel(5)
 
     print('\nI: Testing flash memory:\n')
     ts.test_dflash()

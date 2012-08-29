@@ -46,13 +46,13 @@ int main ( void )
     SetupPorts();
 
     SetupInterrupts();
-    SetupI2C();
-    SetupADC();
+    //SetupI2C();
+    //SetupADC();
     SetupTimer1();
-    SetupPWM();
+    //SetupPWM();
     SetupTimer2();
-    gyroSetup();
-    xlSetup();
+    //gyroSetup();
+    //xlSetup();
     dfmemSetup();
 
     WordVal pan_id    = {RADIO_PAN_ID};
