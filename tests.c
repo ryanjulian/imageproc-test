@@ -177,37 +177,39 @@ unsigned char test_dflash(unsigned char type, unsigned char status, \
     char *str2 = "Lord. You can imagine where it goes from here.";  //46+1
     char *str3 = "He fixes the cable?"; //19+1
     char *str4 = "Don't be fatuous, Jeffrey."; //26+1
+    int  page  = 0x100;
 
     strcpy(mem_data, str1);
     strcpy(mem_data + strlen(str1), str2);
     strcpy(mem_data + strlen(str1) + strlen(str2), str3);
     strcpy(mem_data + strlen(str1) + strlen(str2) + strlen(str3), str4);
 
-    dfmemWrite((unsigned char *)(mem_data), sizeof(mem_data), 0x0100, 0, 1);
+    dfmemErasePage(page);
+    dfmemWrite((unsigned char *)(mem_data), sizeof(mem_data), page, 0, 1);
 
     pld = payCreateEmpty(strlen(str1));
-    dfmemRead(0x0100, 0, strlen(str1), payGetData(pld));
+    dfmemRead(page, 0, strlen(str1), payGetData(pld));
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
     radioSendPayload(dest_addr, pld);
 
     delay_ms(100);
     pld = payCreateEmpty(strlen(str2));
-    dfmemRead(0x0100, strlen(str1), strlen(str2), payGetData(pld));
+    dfmemRead(page, strlen(str1), strlen(str2), payGetData(pld));
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
     radioSendPayload(dest_addr, pld);
 
     delay_ms(100);
     pld = payCreateEmpty(strlen(str3));
-    dfmemRead(0x0100, strlen(str1) + strlen(str2), strlen(str3), payGetData(pld));
+    dfmemRead(page, strlen(str1) + strlen(str2), strlen(str3), payGetData(pld));
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
     radioSendPayload(dest_addr, pld);
 
     delay_ms(100);
     pld = payCreateEmpty(strlen(str4));
-    dfmemRead(0x0100, strlen(str1) + strlen(str2) + strlen(str3), strlen(str4), payGetData(pld));
+    dfmemRead(page, strlen(str1) + strlen(str2) + strlen(str3), strlen(str4), payGetData(pld));
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
     radioSendPayload(dest_addr, pld);

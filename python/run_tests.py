@@ -38,7 +38,7 @@
 #  Fernando L. Garcia Bermudez      2012-8-20    Initial release
 #
 
-import sys, traceback
+import sys, traceback, time
 import test_suite
 
 
@@ -67,6 +67,7 @@ def main():
     #ts.test_motor()
     #ts.test_sma()
 
+    time.sleep(10)
     ts.__del__()
 
 ### Exception handling
