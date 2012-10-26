@@ -17,16 +17,16 @@
 #define RADIO_TEST          0
 #define GYRO_TEST           1
 #define ACCEL_TEST          2
-#define DFLASH_TEST         3 
+#define DFLASH_TEST         3
 #define MOTOR_TEST          4
 #define SMA_TEST            5
 
 //Camera constants
 #define IMCOLS 160
-#define IMROWS 100 
+#define IMROWS 100
 
 //Communication constants
-#define TX_PAYLOAD_SIZE     128 
+#define TX_PAYLOAD_SIZE     128
 
 //Timer constants
 #define FT1                 100
@@ -39,7 +39,6 @@
 #define BRAKE               2
 
 //Test configuration parameters
-#define NUM_TEST_PACKETS        20
 #define TEST_PACKET_INTERVAL_MS 200
 #define MOTOR_TEST_DUTY_CYCLE   50
 #define MOTOR_TEST_DURATION     10 //How long to run the motor (in seconds) during the test
