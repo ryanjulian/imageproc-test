@@ -43,48 +43,49 @@ import test_suite
 
 
 #RADIO_DEV_NAME  = '/dev/tty.usbserial-*' or 'COMx'
-RADIO_DEV_NAME  = 'COM1'
+#RADIO_DEV_NAME  = 'COM1'
+RADIO_DEV_NAME = '/dev/ttyUSB0'
 
 BS_BAUDRATE = 57600
 DEST_ADDR = '\x21\x12'
 
-def main():
-    ts = test_suite.TestSuite(RADIO_DEV_NAME,            \
-                              baud_rate=BS_BAUDRATE, \
-                              dest_addr=DEST_ADDR  )
-
-    print('\nI: Testing radio communication:')
-    ts.test_radio()
-
-    #print('\nI: Testing gyroscopes:\n')
-    #ts.test_gyro(5)
-
-    #print('\nI: Testing accelerometers:\n')
-    #ts.test_accel(5)
-
-    print('\nI: Testing flash memory:\n')
-    ts.test_dflash()
-
-    # TODO (fgb) : Need a crawlerproc to test actuators
-    
-    
-    print('\nI: Testing motor channel 1')
-    ts.test_motor_basic()
-    #ts.test_motor()
-    #ts.test_sma()
-
-    ts.__del__()
-
-### Exception handling
-
 if __name__ == '__main__':
     try:
-        main()
+        ts = test_suite.TestSuite(RADIO_DEV_NAME,            \
+                                  baud_rate=BS_BAUDRATE, \
+                                  dest_addr=DEST_ADDR  )
+
+        print('\nI: Testing radio communication:')
+        ts.test_radio()
+
+        #print('\nI: Testing gyroscopes:\n')
+        #ts.test_gyro(5)
+
+        #print('\nI: Testing accelerometers:\n')
+        #ts.test_accel(5)
+        while True:
+            print('\nI: Testing flash memory:\n')
+            ts.test_dflash()
+
+        # TODO (fgb) : Need a crawlerproc to test actuators
+    
+    
+        #print('\nI: Testing motor channel 1')
+        #ts.test_motor_basic()
+        #ts.test_motor()
+        #ts.test_sma()
+
+        ts.__del__()
         sys.exit(0)
+    
+    ### Exception handling
     except SystemExit as e:
         print('\nI: SystemExit: ' + str(e))
     except KeyboardInterrupt:
         print('\nI: KeyboardInterrupt')
+        ts.__del__()
+        sys.exit(1)
     except Exception as e:
         print('\nE: Unexpected exception!\n' + str(e))
         traceback.print_exc()
+        sys.exit(1)
