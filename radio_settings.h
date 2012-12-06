@@ -11,7 +11,7 @@
 #define RADIO_MY_CHAN         0x11
 
 #define RADIO_PAN_ID          0x2110
-#define RADIO_DEST_ADDR       0x2111 // orange basestation
+#define RADIO_DEST_ADDR       0x2111
 #define RADIO_SRC_ADDR        0x2112
 
 #define RADIO_TXPQ_MAX_SIZE   30

@@ -63,12 +63,14 @@ if __name__ == '__main__':
 
         #print('\nI: Testing accelerometers:\n')
         #ts.test_accel(5)
+        
         while True:
-            print('\nI: Testing flash memory:\n')
-            ts.test_dflash()
+            #print('\nI: Testing flash memory:\n')
+            #ts.test_dflash()
+            print('\nI: Testing radio communication:')
+            ts.test_radio()
 
         # TODO (fgb) : Need a crawlerproc to test actuators
-    
     
         #print('\nI: Testing motor channel 1')
         #ts.test_motor_basic()
@@ -81,6 +83,7 @@ if __name__ == '__main__':
     ### Exception handling
     except SystemExit as e:
         print('\nI: SystemExit: ' + str(e))
+        sys.exit(1)
     except KeyboardInterrupt:
         print('\nI: KeyboardInterrupt')
         ts.__del__()

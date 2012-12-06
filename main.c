@@ -21,23 +21,20 @@
 #include "timer.h"
 #include "utils.h"
 #include "queue.h"
-#include "payload_queue.h"
-#include "payload.h"
-#include "at86rf.h"
 #include "radio.h"
 #include "radio_settings.h"
 #include "tests.h" // TODO (fgb) : define/includes need to live elsewhere
-#include "gyro.h"
-#include "xl.h"
 #include "dfmem.h"
-
+#include "interrupts.h"
+#include <stdlib.h>
 
 Payload rx_payload;
+MacPacket rx_packet;
+Test* test;
 
 int main ( void )
 {
     fun_queue = queueInit(FUN_Q_LEN);
-    rx_pay_queue = pqInit(12); //replace 12 with a #define const later
     test_function tf;
 
     /* Initialization */
@@ -53,15 +50,16 @@ int main ( void )
     SetupTimer2();
     //gyroSetup();
     //xlSetup();
-    dfmemSetup();
+    //dfmemSetup();
+    //mpuSetup();
 
-    WordVal pan_id    = {RADIO_PAN_ID};
-    WordVal src_addr  = {RADIO_SRC_ADDR};
-    WordVal dest_addr = {RADIO_DEST_ADDR};
-
-    radioInit(src_addr, pan_id, RADIO_RXPQ_MAX_SIZE, RADIO_TXPQ_MAX_SIZE);
-    radioSetDestAddr(dest_addr);
+    // Radio setup
+    radioInit(RADIO_RXPQ_MAX_SIZE, RADIO_TXPQ_MAX_SIZE);
     radioSetChannel(RADIO_MY_CHAN);
+    radioSetSrcAddr(RADIO_SRC_ADDR);
+    radioSetSrcPanID(RADIO_PAN_ID);
+    setupTimer6(RADIO_FCY); // Radio and buffer loop timer
+
 
     char j;
     for(j=0; j<3; j++){
@@ -77,10 +75,13 @@ int main ( void )
     while(1){
         while(!queueIsEmpty(fun_queue))
         {
-            rx_payload = pqPop(rx_pay_queue);
-            tf = (test_function)queuePop(fun_queue);
+            test = queuePop(fun_queue);
+            rx_payload = macGetPayload(test->packet);
+            tf = test->tf;
             (*tf)(payGetType(rx_payload), payGetStatus(rx_payload), payGetDataLength(rx_payload), payGetData(rx_payload));
             payDelete(rx_payload);
+            radioReturnPacket(test->packet);
+            free(test);
         }
     }
     return 0;

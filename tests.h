@@ -6,6 +6,7 @@
  */
 #include "queue.h"
 #include "payload_queue.h"
+#include "mac_packet.h"
 
 #define RX_QUEUE_LEN    6
 #define TX_QUEUE_LEN    12
@@ -52,5 +53,10 @@ extern unsigned char argument, regaddr, regvalue;
 extern unsigned int i, j, rowcnt, imcnt;
 
 extern volatile Queue fun_queue;
+
+typedef struct {
+    MacPacket packet;
+    test_function tf;
+} Test;
 
 #endif
