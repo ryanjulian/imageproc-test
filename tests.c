@@ -245,7 +245,6 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     pld = packet->payload;
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
-    radioSendPayload(dest_addr, pld);
 
     // Read out dfmem into the payload
     dfmemRead(page, strlen(str1), strlen(str2), payGetData(pld));
@@ -269,7 +268,6 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     pld = packet->payload;
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
-    radioSendPayload(dest_addr, pld);
 
     // Read out dfmem into the payload
     dfmemRead(page, strlen(str1) + strlen(str2), strlen(str3),
@@ -283,8 +281,15 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
 
     // Wait around a while
     delay_ms(100);
-    pld = payCreateEmpty(strlen(str4));
-    dfmemRead(page, strlen(str1) + strlen(str2) + strlen(str3), strlen(str4), payGetData(pld));
+
+    // ---------- string 4 -----------------------------------------------------
+    // Get a new packet from the pool
+    packet = radioRequestPacket(strlen(str4));
+    if(packet == NULL) return 0;
+    macSetDestAddr(packet, RADIO_DEST_ADDR);
+
+    // Prepare the payload
+    pld = packet->payload;
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
 
