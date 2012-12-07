@@ -31,7 +31,6 @@ void __attribute__((interrupt, no_auto_psv)) _T1Interrupt(void) {
     _T1IF = 0;
 }
 
-
 void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void) {
     MacPacket rx_packet;
     Payload rx_payload;

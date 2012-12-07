@@ -45,6 +45,9 @@
       <itemPath>radio_settings.h</itemPath>
       <itemPath>tests.h</itemPath>
       <itemPath>led.h</itemPath>
+      <itemPath>traps.c</itemPath>
+      <itemPath>estop.h</itemPath>
+      <itemPath>estop.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

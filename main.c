@@ -26,11 +26,14 @@
 #include "tests.h" // TODO (fgb) : define/includes need to live elsewhere
 #include "dfmem.h"
 #include "interrupts.h"
+#include "mpu6000.h"
+#include "sclock.h"
 #include <stdlib.h>
 
 Payload rx_payload;
 MacPacket rx_packet;
 Test* test;
+
 
 int main() {
     fun_queue = queueInit(FUN_Q_LEN);
@@ -77,7 +80,6 @@ int main() {
             rx_payload = macGetPayload(test->packet);
             tf = test->tf;
             (*tf)(payGetType(rx_payload), payGetStatus(rx_payload), payGetDataLength(rx_payload), payGetData(rx_payload));
-            payDelete(rx_payload);
             radioReturnPacket(test->packet);
             free(test);
         }
