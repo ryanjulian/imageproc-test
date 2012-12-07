@@ -20,7 +20,7 @@
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
  * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTIeUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
  * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
@@ -201,6 +201,7 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     char *str2 = "Lord. You can imagine where it goes from here.";  //46+1
     char *str3 = "He fixes the cable?"; //19+1
     char *str4 = "Don't be fatuous, Jeffrey."; //26+1
+    int  page  = 0x100;
 
     strcpy(mem_data, str1);
     strcpy(mem_data + strlen(str1), str2);
@@ -208,7 +209,8 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     strcpy(mem_data + strlen(str1) + strlen(str2) + strlen(str3), str4);
 
     // Write into dfmem
-    dfmemWrite((unsigned char *)(mem_data), sizeof(mem_data), 0x0100, 0, 1);
+	dfmemErasePage(page);
+    dfmemWrite((unsigned char *)(mem_data), sizeof(mem_data), page, 0, 1);
 
     // ---------- string 1 -----------------------------------------------------
     // Get a new packet from the pool
@@ -222,7 +224,7 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     paySetType(pld, type);
 
     // Read out dfmem into the payload
-    dfmemRead(0x0100, 0, strlen(str1), payGetData(pld));
+    dfmemRead(page, 0, strlen(str1), payGetData(pld));
 
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
@@ -243,9 +245,10 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     pld = packet->payload;
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
+    radioSendPayload(dest_addr, pld);
 
     // Read out dfmem into the payload
-    dfmemRead(0x0100, strlen(str1), strlen(str2), payGetData(pld));
+    dfmemRead(page, strlen(str1), strlen(str2), payGetData(pld));
 
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
@@ -266,9 +269,10 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     pld = packet->payload;
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
+    radioSendPayload(dest_addr, pld);
 
     // Read out dfmem into the payload
-    dfmemRead(0x0100, strlen(str1) + strlen(str2), strlen(str3),
+    dfmemRead(page, strlen(str1) + strlen(str2), strlen(str3),
             payGetData(pld));
 
     // Enqueue the packet for broadcast
@@ -279,20 +283,13 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
 
     // Wait around a while
     delay_ms(100);
-
-    // ---------- string 4 -----------------------------------------------------
-    // Get a new packet from the pool
-    packet = radioRequestPacket(strlen(str4));
-    if(packet == NULL) return 0;
-    macSetDestAddr(packet, RADIO_DEST_ADDR);
-
-    // Prepare the payload
-    pld = packet->payload;
+    pld = payCreateEmpty(strlen(str4));
+    dfmemRead(page, strlen(str1) + strlen(str2) + strlen(str3), strlen(str4), payGetData(pld));
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
 
     // Read out dfmem into the payload
-    dfmemRead(0x0100, strlen(str1) + strlen(str2) + strlen(str3), strlen(str4),
+    dfmemRead(page, strlen(str1) + strlen(str2) + strlen(str3), strlen(str4),
             payGetData(pld));
 
     // Enqueue the packet for broadcast
@@ -319,7 +316,6 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
 *                        data[1] = duty cycle (percent)
 * Return Value  : success indicator - 0 for failed, 1 for succeeded
 *****************************************************************************/
-
 unsigned char test_motor(unsigned char type, unsigned char status, \
                           unsigned char length, unsigned char* data)
 {
@@ -442,10 +438,10 @@ unsigned char test_sma(unsigned char type, unsigned char status, \
  * This version is for controlling the Freescale motor controller. The aim is
  * to phase the controller out for the Toshiba TB6612FNG.
  */
+/*
 unsigned char set_motor_direction(unsigned char chan_num, unsigned char\
                             direction)
 {
-    /*
     switch(chan_num){
         case 1:
             //Braking case: override both and set both to low
@@ -488,9 +484,9 @@ unsigned char set_motor_direction(unsigned char chan_num, unsigned char\
         default:
             return 0;
     }
-    */
     return 1;
 }
+*/
 
 
 /*

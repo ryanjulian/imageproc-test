@@ -164,24 +164,9 @@ class TestSuite():
         '''
 
         data_out = chr(kStatusUnused) + chr(kTestDFlashCmd)
-        #print('data out is')
-        #print(data_out)
         if(self.check_conn()):
             self.radio.tx(dest_addr=self.dest_addr, data=data_out)
             time.sleep(1)
-            #print( self.radio.tx(dest_addr=self.dest_addr, data=data_out))
-            #print('sucess???????????????????????????????????????????????????????')
-
-    def test_motor_basic(self):
-        '''
-        Description:
-            Tests the motors 
-        '''
-        self.test_motor(1,5,100,1,0)
-        time.sleep(10)
-        print('reversing')
-        self.test_motor(1,5,100,0,0)
-        time.sleep(10)
 
     def test_motor(self, motor_id, time, duty_cycle, direction, return_emf=0):
         '''
