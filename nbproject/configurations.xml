@@ -32,6 +32,7 @@
         <itemPath>../imageproc-lib/spi.h</itemPath>
         <itemPath>../imageproc-lib/mpu6000.c</itemPath>
         <itemPath>../imageproc-lib/mpu6000.h</itemPath>
+        <itemPath>../imageproc-lib/dfmem.h</itemPath>
       </logicalFolder>
       <itemPath>init.c</itemPath>
       <itemPath>interrupts.c</itemPath>

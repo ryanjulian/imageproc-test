@@ -32,8 +32,7 @@ Payload rx_payload;
 MacPacket rx_packet;
 Test* test;
 
-int main ( void )
-{
+int main() {
     fun_queue = queueInit(FUN_Q_LEN);
     test_function tf;
 
@@ -48,10 +47,9 @@ int main ( void )
     SetupTimer1();
     //SetupPWM();
     SetupTimer2();
-    //gyroSetup();
-    //xlSetup();
-    //dfmemSetup();
-    //mpuSetup();
+    sclockSetup();
+    mpuSetup();
+    dfmemSetup();
 
     // Radio setup
     radioInit(RADIO_RXPQ_MAX_SIZE, RADIO_TXPQ_MAX_SIZE);
