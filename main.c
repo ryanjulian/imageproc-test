@@ -13,7 +13,7 @@
 * the top of the queue and executes it. 
 *
 * Date: 2011-04-13
-* Author: AMH
+* Author: AMH, Ryan Julian
 *********************************************************************************************************/
 #include "p33Fxxxx.h"
 #include "init.h"
@@ -65,9 +65,9 @@ int main() {
     char j;
     for(j=0; j<3; j++){
         LED_2 = ON;
-        delay_ms(500);
+        delay_ms(250);
         LED_2 = OFF;
-        delay_ms(500);
+        delay_ms(250);
     }
 
     LED_2 = ON;

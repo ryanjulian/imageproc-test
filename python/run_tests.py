@@ -55,12 +55,14 @@ if __name__ == '__main__':
                                   baud_rate=BS_BAUDRATE, \
                                   dest_addr=DEST_ADDR  )
 
-        print('\nI: Testing radio communication:')
-        ts.test_radio()
+        #print('\nI: Testing radio communication:')
+        #ts.test_radio()
         
         while True:
+            raw_input("Press any key to continue...")
             print('\nI: Testing flash memory:\n')
             ts.test_dflash()
+            
             #print('\nI: Testing radio communication:')
             #ts.test_radio()
     

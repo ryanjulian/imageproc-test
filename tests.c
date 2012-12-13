@@ -57,6 +57,7 @@
 #include "xl.h"
 #include "dfmem.h"
 #include <string.h>
+#include <stdlib.h>
 #include <radio_settings.h>
 
 volatile Queue fun_queue;
@@ -91,9 +92,6 @@ unsigned char test_radio(unsigned char type, unsigned char status,\
 
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
-
-    // Return the packet
-    radioReturnPacket(packet);
 
     return 1; //success
 }
@@ -165,9 +163,6 @@ unsigned char test_accel(unsigned char type, unsigned char status,\
         // Enqueue the packet for broadcast
         while(!radioEnqueueTxPacket(packet));
 
-        // Return the packet
-        radioReturnPacket(packet);
-
         // Wait around for a while
         delay_ms(TEST_PACKET_INTERVAL_MS);
     }
@@ -197,10 +192,12 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     Payload pld;
 
     char mem_data[256] = {};
-    char *str1 = "You must be here to fix the cable.";  // 38+1
-    char *str2 = "Lord. You can imagine where it goes from here.";  //46+1
-    char *str3 = "He fixes the cable?"; //19+1
-    char *str4 = "Don't be fatuous, Jeffrey."; //26+1
+    
+    //char* str1 = "You must be here to fix the cable.";  // 38+1
+    char str1[] = "D";  // 38+1
+    char str2[] = "Lord. You can imagine where it goes from here.";  //46+1
+    char str3[] = "He fixes the cable?"; //19+1
+    char str4[] = "Don't be fatuous, Jeffrey."; //26+1
     int  page  = 0x100;
 
     strcpy(mem_data, str1);
@@ -209,7 +206,6 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     strcpy(mem_data + strlen(str1) + strlen(str2) + strlen(str3), str4);
 
     // Write into dfmem
-	dfmemErasePage(page);
     dfmemWrite((unsigned char *)(mem_data), sizeof(mem_data), page, 0, 1);
 
     // ---------- string 1 -----------------------------------------------------
@@ -229,12 +225,6 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
 
-    // Return the packet
-    radioReturnPacket(packet);
-
-    // Wait around a while
-    delay_ms(100);
-
     // ---------- string 2 -----------------------------------------------------
     // Get a new packet from the pool
     packet = radioRequestPacket(strlen(str2));
@@ -251,12 +241,6 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
 
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
-
-    // Return the packet
-    radioReturnPacket(packet);
-
-    // Wait around a while
-    delay_ms(100);
 
     // ---------- string 3 -----------------------------------------------------
     // Get a new packet from the pool
@@ -276,12 +260,6 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
 
-    // Return the packet
-    radioReturnPacket(packet);
-
-    // Wait around a while
-    delay_ms(100);
-
     // ---------- string 4 -----------------------------------------------------
     // Get a new packet from the pool
     packet = radioRequestPacket(strlen(str4));
@@ -299,12 +277,6 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
 
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
-
-    // Return the packet
-    radioReturnPacket(packet);
-
-    // Wait around a while
-    delay_ms(100);
 
     return 1; //success
 }
