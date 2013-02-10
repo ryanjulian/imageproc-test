@@ -76,6 +76,10 @@ void __attribute__((interrupt, no_auto_psv)) _T2Interrupt(void) {
                 test->tf = &test_sma;
                 queuePush(fun_queue, test);
                 break;
+            case MPU_TEST:
+                test->tf = &test_mpu;
+                queuePush(fun_queue, test);
+                break;
             default:
                 break;
         }

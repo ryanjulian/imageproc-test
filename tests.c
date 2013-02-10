@@ -56,6 +56,7 @@
 #include "gyro.h"
 #include "xl.h"
 #include "dfmem.h"
+#include "mpu6000.h"
 #include <string.h>
 #include <stdlib.h>
 #include <radio_settings.h>
@@ -92,6 +93,9 @@ unsigned char test_radio(unsigned char type, unsigned char status,\
 
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
+
+    // Return the packet
+    radioReturnPacket(packet);
 
     return 1; //success
 }
@@ -163,6 +167,9 @@ unsigned char test_accel(unsigned char type, unsigned char status,\
         // Enqueue the packet for broadcast
         while(!radioEnqueueTxPacket(packet));
 
+        // Return the packet
+        radioReturnPacket(packet);
+
         // Wait around for a while
         delay_ms(TEST_PACKET_INTERVAL_MS);
     }
@@ -193,8 +200,7 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
 
     char mem_data[256] = {};
     
-    //char* str1 = "You must be here to fix the cable.";  // 38+1
-    char str1[] = "D";  // 38+1
+    char str1[] = "You must be here to fix the cable.";  // 38+1
     char str2[] = "Lord. You can imagine where it goes from here.";  //46+1
     char str3[] = "He fixes the cable?"; //19+1
     char str4[] = "Don't be fatuous, Jeffrey."; //26+1
@@ -225,6 +231,12 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
 
+    // Return the packet
+    radioReturnPacket(packet);
+
+    // Wait around a while
+    delay_ms(100);
+
     // ---------- string 2 -----------------------------------------------------
     // Get a new packet from the pool
     packet = radioRequestPacket(strlen(str2));
@@ -241,6 +253,12 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
 
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
+
+    // Return the packet
+    radioReturnPacket(packet);
+
+    // Wait around a while
+    delay_ms(100);
 
     // ---------- string 3 -----------------------------------------------------
     // Get a new packet from the pool
@@ -260,6 +278,12 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
 
+    // Return the packet
+    radioReturnPacket(packet);
+
+    // Wait around a while
+    delay_ms(100);
+
     // ---------- string 4 -----------------------------------------------------
     // Get a new packet from the pool
     packet = radioRequestPacket(strlen(str4));
@@ -278,6 +302,12 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
     // Enqueue the packet for broadcast
     while(!radioEnqueueTxPacket(packet));
 
+    // Return the packet
+    radioReturnPacket(packet);
+
+    // Wait around a while
+    delay_ms(100);
+
     return 1; //success
 }
 
@@ -293,6 +323,7 @@ unsigned char test_dflash(unsigned char type, unsigned char status,
 *                        data[1] = duty cycle (percent)
 * Return Value  : success indicator - 0 for failed, 1 for succeeded
 *****************************************************************************/
+
 unsigned char test_motor(unsigned char type, unsigned char status, \
                           unsigned char length, unsigned char* data)
 {
@@ -411,14 +442,47 @@ unsigned char test_sma(unsigned char type, unsigned char status, \
     return 1;
 }
 
+unsigned char test_mpu(unsigned char type, unsigned char status, \
+                          unsigned char length, unsigned char* data)
+{
+    MacPacket packet;
+    Payload pld;
+
+    mpuBeginUpdate();
+
+    int buf[7];
+
+    mpuGetGyro(&(buf[0]));
+    mpuGetXl(&(buf[3]));
+    mpuGetTemp(&(buf[6]));
+
+    packet = radioRequestPacket(14);
+    if(packet == NULL) return 0;
+    macSetDestAddr(packet, RADIO_DEST_ADDR);
+
+    // Prepare the payload
+    pld = packet->payload;
+    paySetStatus(pld, STATUS_UNUSED);
+    paySetType(pld, type);
+    paySetData(pld, 14, (unsigned char *)buf);
+
+    // Enqueue the packet for broadcast
+    while(!radioEnqueueTxPacket(packet));
+
+    // Return the packet
+    radioReturnPacket(packet);
+
+    return 1;
+}
+
 /*
  * This version is for controlling the Freescale motor controller. The aim is
  * to phase the controller out for the Toshiba TB6612FNG.
  */
-/*
 unsigned char set_motor_direction(unsigned char chan_num, unsigned char\
                             direction)
 {
+    /*
     switch(chan_num){
         case 1:
             //Braking case: override both and set both to low
@@ -461,9 +525,9 @@ unsigned char set_motor_direction(unsigned char chan_num, unsigned char\
         default:
             return 0;
     }
+    */
     return 1;
 }
-*/
 
 
 /*
