@@ -1,5 +1,6 @@
 Note: Unit tests will be pulled here, while library updates will be pulled
-into biomimetics/imageproc-lib@imageproc2.5-integration.
+into [imageproc-lib]
+(https://github.com/biomimetics/imageproc-lib/tree/imageproc2.5-integration).
 
 This is the board support integration branch for ImageProc 2.5 unit tests.
 Please send pull requests with unit tests here.
