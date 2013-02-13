@@ -39,7 +39,6 @@ kTestSMACmd     = 5
 ON = 1
 OFF = 0
 
-
 class TestSuite():
     '''Class representing the ImageProc test suite'''
 

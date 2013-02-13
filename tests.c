@@ -20,7 +20,7 @@
  * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
  * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTIeUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
  * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
  * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
@@ -52,12 +52,13 @@
 #include "consts.h"
 #include "utils.h"
 #include "radio.h"
-#include "at86rf.h"
 #include "pwm.h"
 #include "gyro.h"
 #include "xl.h"
 #include "dfmem.h"
 #include <string.h>
+#include <stdlib.h>
+#include <radio_settings.h>
 
 volatile Queue fun_queue;
 
@@ -75,15 +76,22 @@ volatile Queue fun_queue;
 unsigned char test_radio(unsigned char type, unsigned char status,\
                          unsigned char length, unsigned char* data)
 {
+    MacPacket packet;
     Payload pld;
-    WordVal dest_addr;
 
-    dest_addr = radioGetDestAddr();
-    pld = payCreateEmpty(length);
+    // Get a new packet from the pool
+    packet = radioRequestPacket(length);
+    if(packet == NULL) return 0;
+    macSetDestAddr(packet, RADIO_DEST_ADDR);
+
+    // Prepare the payload
+    pld = packet->payload;
     paySetType(pld, type);
     paySetStatus(pld, status);
     paySetData(pld, length, data);
-    radioSendPayload(dest_addr, pld);
+
+    // Enqueue the packet for broadcast
+    while(!radioEnqueueTxPacket(packet));
 
     return 1; //success
 }
@@ -101,6 +109,7 @@ unsigned char test_radio(unsigned char type, unsigned char status,\
 unsigned char test_gyro(unsigned char type, unsigned char status,\
                          unsigned char length, unsigned char* data)
 {
+    /*
     int i;
 
     Payload pld;
@@ -114,7 +123,7 @@ unsigned char test_gyro(unsigned char type, unsigned char status,\
         radioSendPayload(dest_addr, pld);
         delay_ms(TEST_PACKET_INTERVAL_MS);
     }
-
+    */
     return 1; //success
 }
 
@@ -132,23 +141,34 @@ unsigned char test_gyro(unsigned char type, unsigned char status,\
 unsigned char test_accel(unsigned char type, unsigned char status,\
                          unsigned char length, unsigned char* data)
 {
-    int i;
-
+    /*
+    MacPacket packet;
     Payload pld;
-    WordVal dest_addr;
-    dest_addr = radioGetDestAddr();
 
-    for (i=0; i < data[0]; i++){
+    for(int i=0; i < data[0]; i++) {
+        // Get a new packet from the pool
+        packet = radioRequestPacket(6);
+        if(packet == NULL) return;
+        macSetDestAddr(packet, RADIO_DEST_ADDR);
+
+        // Toggle LED
         LED_1 = ~LED_1;
-        pld = payCreateEmpty(6);
+
+        // Fill the payload
+        pld = packet->payload;
         paySetType(pld, type);
         paySetStatus(pld, 0);
         paySetData(pld, 6, xlReadXYZ());
-        radioSendPayload(dest_addr, pld);
+
+        // Enqueue the packet for broadcast
+        while(!radioEnqueueTxPacket(packet));
+
+        // Wait around for a while
         delay_ms(TEST_PACKET_INTERVAL_MS);
     }
 
     LED_1 = OFF;
+    */
 
     return 1; //success
 }
@@ -165,18 +185,19 @@ unsigned char test_accel(unsigned char type, unsigned char status,\
 *                 data - not used
 * Return Value  : success indicator - 0 for failed, 1 for succeeded
 *****************************************************************************/
-unsigned char test_dflash(unsigned char type, unsigned char status, \
+unsigned char test_dflash(unsigned char type, unsigned char status,
                           unsigned char length, unsigned char* data)
 {
+    MacPacket packet;
     Payload pld;
-    WordVal dest_addr;
-    dest_addr = radioGetDestAddr();
 
     char mem_data[256] = {};
-    char *str1 = "You must be here to fix the cable.";  // 38+1
-    char *str2 = "Lord. You can imagine where it goes from here.";  //46+1
-    char *str3 = "He fixes the cable?"; //19+1
-    char *str4 = "Don't be fatuous, Jeffrey."; //26+1
+    
+    //char* str1 = "You must be here to fix the cable.";  // 38+1
+    char str1[] = "D";  // 38+1
+    char str2[] = "Lord. You can imagine where it goes from here.";  //46+1
+    char str3[] = "He fixes the cable?"; //19+1
+    char str4[] = "Don't be fatuous, Jeffrey."; //26+1
     int  page  = 0x100;
 
     strcpy(mem_data, str1);
@@ -184,35 +205,78 @@ unsigned char test_dflash(unsigned char type, unsigned char status, \
     strcpy(mem_data + strlen(str1) + strlen(str2), str3);
     strcpy(mem_data + strlen(str1) + strlen(str2) + strlen(str3), str4);
 
-    dfmemErasePage(page);
+    // Write into dfmem
     dfmemWrite((unsigned char *)(mem_data), sizeof(mem_data), page, 0, 1);
 
-    pld = payCreateEmpty(strlen(str1));
+    // ---------- string 1 -----------------------------------------------------
+    // Get a new packet from the pool
+    packet = radioRequestPacket(strlen(str1));
+    if(packet == NULL) return 0;
+    macSetDestAddr(packet, RADIO_DEST_ADDR);
+
+    // Prepare the payload
+    pld = packet->payload;
+    paySetStatus(pld, STATUS_UNUSED);
+    paySetType(pld, type);
+
+    // Read out dfmem into the payload
     dfmemRead(page, 0, strlen(str1), payGetData(pld));
+
+    // Enqueue the packet for broadcast
+    while(!radioEnqueueTxPacket(packet));
+
+    // ---------- string 2 -----------------------------------------------------
+    // Get a new packet from the pool
+    packet = radioRequestPacket(strlen(str2));
+    if(packet == NULL) return 0;
+    macSetDestAddr(packet, RADIO_DEST_ADDR);
+
+    // Prepare the payload
+    pld = packet->payload;
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
-    radioSendPayload(dest_addr, pld);
 
-    delay_ms(100);
-    pld = payCreateEmpty(strlen(str2));
+    // Read out dfmem into the payload
     dfmemRead(page, strlen(str1), strlen(str2), payGetData(pld));
-    paySetStatus(pld, STATUS_UNUSED);
-    paySetType(pld, type);
-    radioSendPayload(dest_addr, pld);
 
-    delay_ms(100);
-    pld = payCreateEmpty(strlen(str3));
-    dfmemRead(page, strlen(str1) + strlen(str2), strlen(str3), payGetData(pld));
-    paySetStatus(pld, STATUS_UNUSED);
-    paySetType(pld, type);
-    radioSendPayload(dest_addr, pld);
+    // Enqueue the packet for broadcast
+    while(!radioEnqueueTxPacket(packet));
 
-    delay_ms(100);
-    pld = payCreateEmpty(strlen(str4));
-    dfmemRead(page, strlen(str1) + strlen(str2) + strlen(str3), strlen(str4), payGetData(pld));
+    // ---------- string 3 -----------------------------------------------------
+    // Get a new packet from the pool
+    packet = radioRequestPacket(strlen(str3));
+    if(packet == NULL) return 0;
+    macSetDestAddr(packet, RADIO_DEST_ADDR);
+
+    // Prepare the payload
+    pld = packet->payload;
     paySetStatus(pld, STATUS_UNUSED);
     paySetType(pld, type);
-    radioSendPayload(dest_addr, pld);
+
+    // Read out dfmem into the payload
+    dfmemRead(page, strlen(str1) + strlen(str2), strlen(str3),
+            payGetData(pld));
+
+    // Enqueue the packet for broadcast
+    while(!radioEnqueueTxPacket(packet));
+
+    // ---------- string 4 -----------------------------------------------------
+    // Get a new packet from the pool
+    packet = radioRequestPacket(strlen(str4));
+    if(packet == NULL) return 0;
+    macSetDestAddr(packet, RADIO_DEST_ADDR);
+
+    // Prepare the payload
+    pld = packet->payload;
+    paySetStatus(pld, STATUS_UNUSED);
+    paySetType(pld, type);
+
+    // Read out dfmem into the payload
+    dfmemRead(page, strlen(str1) + strlen(str2) + strlen(str3), strlen(str4),
+            payGetData(pld));
+
+    // Enqueue the packet for broadcast
+    while(!radioEnqueueTxPacket(packet));
 
     return 1; //success
 }
@@ -232,6 +296,7 @@ unsigned char test_dflash(unsigned char type, unsigned char status, \
 unsigned char test_motor(unsigned char type, unsigned char status, \
                           unsigned char length, unsigned char* data)
 {
+    /*
     Payload pld;
     WordVal dest_addr;
     dest_addr = radioGetDestAddr();
@@ -293,6 +358,7 @@ unsigned char test_motor(unsigned char type, unsigned char status, \
     SetDCMCPWM(motor_id, 0, 0);
 
     LED_1 = 0;
+    */
 
     return 1;
 }
@@ -300,6 +366,7 @@ unsigned char test_motor(unsigned char type, unsigned char status, \
 unsigned char test_sma(unsigned char type, unsigned char status, \
                           unsigned char length, unsigned char* data)
 {
+    /*
     WordVal dest_addr;
     dest_addr = radioGetDestAddr();
 
@@ -340,7 +407,7 @@ unsigned char test_sma(unsigned char type, unsigned char status, \
     MD_LED_1 = 0;
     MD_LED_2 = 0;
 
-
+    */
     return 1;
 }
 
@@ -406,7 +473,7 @@ unsigned char set_motor_direction(unsigned char chan_num, unsigned char\
  * Forward = CW: PWM1H = High, PWM1L = Low.
  * Reverse = CCW: PWM1H = Low, PWM1L = High.
  */
-
+/*
 unsigned char set_motor_direction(unsigned char chan_num, unsigned char\
                             direction)
 {
@@ -448,5 +515,6 @@ unsigned char set_motor_direction(unsigned char chan_num, unsigned char\
     }
     return 1;
 }
+*/
 
 

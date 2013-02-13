@@ -6,24 +6,48 @@
                    projectFiles="true">
       <logicalFolder name="f1" displayName="imageproc-lib" projectFiles="true">
         <itemPath>../imageproc-lib/init_default.c</itemPath>
-        <itemPath>../imageproc-lib/at86rf.c</itemPath>
         <itemPath>../imageproc-lib/delay.s</itemPath>
         <itemPath>../imageproc-lib/dfmem.c</itemPath>
         <itemPath>../imageproc-lib/gyro.c</itemPath>
-        <itemPath>../imageproc-lib/ipspi1.c</itemPath>
-        <itemPath>../imageproc-lib/packet_queue.c</itemPath>
-        <itemPath>../imageproc-lib/payload.c</itemPath>
-        <itemPath>../imageproc-lib/payload_queue.c</itemPath>
         <itemPath>../imageproc-lib/queue.c</itemPath>
         <itemPath>../imageproc-lib/radio.c</itemPath>
-        <itemPath>../imageproc-lib/stopwatch.c</itemPath>
         <itemPath>../imageproc-lib/xl.c</itemPath>
         <itemPath>../imageproc-lib/i2c_driver.c</itemPath>
+        <itemPath>../imageproc-lib/spi_controller.c</itemPath>
+        <itemPath>../imageproc-lib/spi_controller.h</itemPath>
+        <itemPath>../imageproc-lib/at86rf231_driver.c</itemPath>
+        <itemPath>../imageproc-lib/at86rf231_driver.h</itemPath>
+        <itemPath>../imageproc-lib/mac_packet.c</itemPath>
+        <itemPath>../imageproc-lib/mac_packet.h</itemPath>
+        <itemPath>../imageproc-lib/ppool.c</itemPath>
+        <itemPath>../imageproc-lib/ppool.h</itemPath>
+        <itemPath>../imageproc-lib/sclock.c</itemPath>
+        <itemPath>../imageproc-lib/sclock.h</itemPath>
+        <itemPath>../imageproc-lib/radio.h</itemPath>
+        <itemPath>../imageproc-lib/payload.c</itemPath>
+        <itemPath>../imageproc-lib/payload.h</itemPath>
+        <itemPath>../imageproc-lib/carray.c</itemPath>
+        <itemPath>../imageproc-lib/carray.h</itemPath>
+        <itemPath>../imageproc-lib/queue.h</itemPath>
+        <itemPath>../imageproc-lib/spi.h</itemPath>
+        <itemPath>../imageproc-lib/mpu6000.c</itemPath>
+        <itemPath>../imageproc-lib/mpu6000.h</itemPath>
+        <itemPath>../imageproc-lib/dfmem.h</itemPath>
       </logicalFolder>
       <itemPath>init.c</itemPath>
       <itemPath>interrupts.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>tests.c</itemPath>
+      <itemPath>consts.h</itemPath>
+      <itemPath>init.h</itemPath>
+      <itemPath>interrupts.h</itemPath>
+      <itemPath>p33FJ128MC706.h</itemPath>
+      <itemPath>radio_settings.h</itemPath>
+      <itemPath>tests.h</itemPath>
+      <itemPath>led.h</itemPath>
+      <itemPath>traps.c</itemPath>
+      <itemPath>estop.h</itemPath>
+      <itemPath>estop.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -38,10 +62,11 @@
         <developmentServer>localhost</developmentServer>
         <targetDevice>dsPIC33FJ128MC706A</targetDevice>
         <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.00</languageToolchainVersion>
-        <platform>4</platform>
+        <languageToolchainVersion></languageToolchainVersion>
+        <platform>2</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -63,9 +88,9 @@
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
       <C30>
-        <property key="code-model" value="default"/>
+        <property key="code-model" value="small-code"/>
         <property key="const-model" value="default"/>
-        <property key="data-model" value="default"/>
+        <property key="data-model" value="large-data"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
@@ -78,6 +103,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="extra-include-directories" value="./;../imageproc-lib/"/>
         <property key="isolate-each-function" value="false"/>
+        <property key="keep-inline" value="false"/>
         <property key="oXC16gcc-align-arr" value="false"/>
         <property key="oXC16gcc-cnsts-mauxflash" value="false"/>
         <property key="oXC16gcc-data-sects" value="false"/>
@@ -96,7 +122,8 @@
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros" value="__IMAGEPROC2"/>
-        <property key="scalar-model" value="default"/>
+        <property key="scalar-model" value="small-scalar"/>
+        <property key="use-cci" value="false"/>
       </C30>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
@@ -159,7 +186,7 @@
         <property key="oXC16glb-macros" value=""/>
         <property key="output-file-format" value="elf"/>
       </C30Global>
-      <ICD3PlatformTool>
+      <PICkit3PlatformTool>
         <property key="ADC 1" value="true"/>
         <property key="ADC 2" value="true"/>
         <property key="AutoSelectMemRanges" value="auto"/>
@@ -201,25 +228,29 @@
         <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
-        <property key="debugoptions.useswbreakpoints" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
-        <property key="memories.eeprom" value="true"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="false"/>
+        <property key="memories.configurationmemory" value="false"/>
+        <property key="memories.eeprom" value="false"/>
         <property key="memories.flashdata" value="true"/>
-        <property key="memories.id" value="true"/>
+        <property key="memories.id" value="false"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.end" value="0x157ff"/>
         <property key="memories.programmemory.start" value="0x0"/>
-        <property key="poweroptions.powerenable" value="false"/>
+        <property key="poweroptions.powerenable" value="true"/>
+        <property key="programmertogo.imagename" value=""/>
         <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
         <property key="programoptions.preserveeeprom" value="false"/>
         <property key="programoptions.preserveprogramrange" value="false"/>
-        <property key="programoptions.preserveprogramrange.end" value="0xff"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x157ff"/>
         <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="programoptions.preserveuserid" value="false"/>
         <property key="programoptions.usehighvoltageonmclr" value="false"/>
         <property key="programoptions.uselvpprogramming" value="false"/>
         <property key="voltagevalue" value="3.25"/>
-      </ICD3PlatformTool>
+      </PICkit3PlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>

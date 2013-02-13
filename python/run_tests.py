@@ -38,48 +38,51 @@
 #  Fernando L. Garcia Bermudez      2012-8-20    Initial release
 #
 
-import sys, traceback, time
+import sys, traceback
 import test_suite
 
 
 #RADIO_DEV_NAME  = '/dev/tty.usbserial-*' or 'COMx'
-RADIO_BAUD_RATE = 230400
-RADIO_DEST_ADDR = '\x01\x10'
+#RADIO_DEV_NAME  = 'COM1'
+RADIO_DEV_NAME = '/dev/ttyUSB0'
 
-def main():
-    ts = test_suite.TestSuite(RADIO_DEV_NAME,            \
-                              baud_rate=RADIO_BAUD_RATE, \
-                              dest_addr=RADIO_DEST_ADDR  )
-
-    print('\nI: Testing radio communication:')
-    ts.test_radio()
-
-    #print('\nI: Testing gyroscopes:\n')
-    #ts.test_gyro(5)
-
-    #print('\nI: Testing accelerometers:\n')
-    #ts.test_accel(5)
-
-    print('\nI: Testing flash memory:\n')
-    ts.test_dflash()
-
-    # TODO (fgb) : Need a crawlerproc to test actuators
-    #ts.test_motor()
-    #ts.test_sma()
-
-    time.sleep(10)
-    ts.__del__()
-
-### Exception handling
+BS_BAUDRATE = 57600
+DEST_ADDR = '\x21\x12'
 
 if __name__ == '__main__':
     try:
-        main()
+        ts = test_suite.TestSuite(RADIO_DEV_NAME,            \
+                                  baud_rate=BS_BAUDRATE, \
+                                  dest_addr=DEST_ADDR  )
+
+        #print('\nI: Testing radio communication:')
+        #ts.test_radio()
+        
+        while True:
+            raw_input("Press any key to continue...")
+            print('\nI: Testing flash memory:\n')
+            ts.test_dflash()
+            
+            #print('\nI: Testing radio communication:')
+            #ts.test_radio()
+    
+        #print('\nI: Testing motor channel 1')
+        #ts.test_motor_basic()
+        #ts.test_motor()
+        #ts.test_sma()
+
+        ts.__del__()
         sys.exit(0)
+    
+    ### Exception handling
     except SystemExit as e:
         print('\nI: SystemExit: ' + str(e))
+        sys.exit(1)
     except KeyboardInterrupt:
         print('\nI: KeyboardInterrupt')
+        ts.__del__()
+        sys.exit(1)
     except Exception as e:
         print('\nE: Unexpected exception!\n' + str(e))
         traceback.print_exc()
+        sys.exit(1)
