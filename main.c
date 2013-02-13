@@ -28,12 +28,13 @@
 #include "interrupts.h"
 #include "mpu6000.h"
 #include "sclock.h"
+#include "spi_controller.h"
+#include "interrupts.h"
 #include <stdlib.h>
 
 Payload rx_payload;
 MacPacket rx_packet;
 Test* test;
-
 
 int main() {
     fun_queue = queueInit(FUN_Q_LEN);
@@ -51,11 +52,13 @@ int main() {
     //SetupPWM();
     SetupTimer2();
     sclockSetup();
-    mpuSetup();
-    dfmemSetup();
+    //gyroSetup();
+    //xlSetup();
+    dfmemSetup(0);
+    mpuSetup(1);
 
     // Radio setup
-    radioInit(RADIO_RXPQ_MAX_SIZE, RADIO_TXPQ_MAX_SIZE);
+    radioInit(RADIO_RXPQ_MAX_SIZE, RADIO_TXPQ_MAX_SIZE, 0);
     radioSetChannel(RADIO_MY_CHAN);
     radioSetSrcAddr(RADIO_SRC_ADDR);
     radioSetSrcPanID(RADIO_PAN_ID);
@@ -80,6 +83,7 @@ int main() {
             rx_payload = macGetPayload(test->packet);
             tf = test->tf;
             (*tf)(payGetType(rx_payload), payGetStatus(rx_payload), payGetDataLength(rx_payload), payGetData(rx_payload));
+            payDelete(rx_payload);
             radioReturnPacket(test->packet);
             free(test);
         }

@@ -43,10 +43,10 @@ import test_suite
 
 
 #RADIO_DEV_NAME  = '/dev/tty.usbserial-*' or 'COMx'
-#RADIO_DEV_NAME  = 'COM1'
+#RADIO_DEV_NAME = 'COM1'
 RADIO_DEV_NAME = '/dev/ttyUSB0'
-
 BS_BAUDRATE = 57600
+
 DEST_ADDR = '\x21\x12'
 
 if __name__ == '__main__':
@@ -60,11 +60,15 @@ if __name__ == '__main__':
         
         while True:
             raw_input("Press any key to continue...")
+            
+            print('\nI: Testing radio communication:')
+            ts.test_radio()
+
             print('\nI: Testing flash memory:\n')
             ts.test_dflash()
-            
-            #print('\nI: Testing radio communication:')
-            #ts.test_radio()
+
+            print('\nI: Testing MPU6000:\n')
+            ts.test_mpu()
     
         #print('\nI: Testing motor channel 1')
         #ts.test_motor_basic()
