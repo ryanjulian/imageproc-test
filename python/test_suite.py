@@ -31,6 +31,7 @@ kTestAccelCmd   = 2
 kTestDFlashCmd  = 3
 kTestMotorCmd   = 4
 kTestSMACmd     = 5
+kTestMPUCmd     = 6
 
 #kImWidth = 160
 #kImHeight = 100
@@ -108,6 +109,8 @@ class TestSuite():
             print ''.join(rf_data[2:])
         elif typeID == kTestMotorCmd:
             print unpack('50H', rf_data[2:])
+        elif typeID == kTestMPUCmd:
+            print unpack('7h', rf_data[2:])
 
     def test_radio(self):
         '''
@@ -165,7 +168,20 @@ class TestSuite():
         data_out = chr(kStatusUnused) + chr(kTestDFlashCmd)
         if(self.check_conn()):
             self.radio.tx(dest_addr=self.dest_addr, data=data_out)
-            time.sleep(1)
+            time.sleep(5)
+            #print( self.radio.tx(dest_addr=self.dest_addr, data=data_out))
+            #print('sucess???????????????????????????????????????????????????????')
+
+    def test_motor_basic(self):
+        '''
+        Description:
+            Tests the motors 
+        '''
+        self.test_motor(1,5,100,1,0)
+        time.sleep(10)
+        print('reversing')
+        self.test_motor(1,5,100,0,0)
+        time.sleep(10)
 
     def test_motor(self, motor_id, time, duty_cycle, direction, return_emf=0):
         '''
@@ -222,6 +238,12 @@ class TestSuite():
         if(self.check_conn()):
             self.radio.tx(dest_addr=self.dest_addr, data=data_out)
 
+    def test_mpu(self):
+        data_out = chr(kStatusUnused) + chr(kTestMPUCmd)
+
+        if self.check_conn():
+            self.radio.tx(dest_addr=self.dest_addr, data=data_out)
+            time.sleep(0.5)
 
     def print_packet(self, packet):
         '''
